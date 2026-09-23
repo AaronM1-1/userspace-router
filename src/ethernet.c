@@ -28,20 +28,50 @@ int main() {
         exit(1);
     }
 
+
     
     unsigned char buff[2048];
     socklen_t addLen = sizeof(addr);
     int dataRecv = 0;
-    if((dataRecv = recvfrom(socket_packet, buff, sizeof(buff), 0, (struct sockaddr *)&addr, &addLen)) == -1) {
-        fprintf(stderr, "Recv Error: %s\n", strerror(errno));
-        exit(1);
-    }
-
+    struct eth_header ethernetHeader;
     
-    for(int i = 0; i < dataRecv; i++) {
-        printf("%02x ", buff[i]);
+    while(1) {
+        if((dataRecv = recvfrom(socket_packet, buff, sizeof(buff), 0, (struct sockaddr *)&addr, &addLen)) == -1) {
+            if(errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) {
+                continue;
+            }
+            else {
+                fprintf(stderr, "recvfrom error: %s\n", strerror(errno));
+                continue;
+            }
+        }
+
+        if(dataRecv >= 14) {
+
+            memcpy(ethernetHeader.destAddress, buff, 6);
+            memcpy(ethernetHeader.sourceAddress, buff+6, 6);
+            memcpy(&ethernetHeader.ethType, buff+12, 2);
+    
+            switch(ntohs(ethernetHeader.ethType)) {
+                case ETH_P_IP:
+                    //process ipv4
+                    break;
+                case ETH_P_ARP:
+                    //process arp
+                    break;
+
+                case ETH_P_IPV6:
+                    //process ipv6
+                    break;
+
+                default:
+                    break;
+
+            }
+    
+        }
     }
-    printf("\n");
-   
+    
+    
     close(socket_packet);
 }
