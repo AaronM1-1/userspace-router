@@ -12,8 +12,8 @@ struct eth_header {
 };
 
 int eth_initialize(void);
-ssize_t eth_receive(int socket_fd, char* buff, int len);
-int eth_parse(unsigned char* buff, int len, struct eth_header* e);
+ssize_t eth_receive(int socket_fd, unsigned char* buff, int len);
+int eth_parse(unsigned char* buff, int bytesRecv, struct eth_header* e);
 
 #endif
 
