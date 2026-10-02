@@ -1,6 +1,6 @@
 #include <sys/socket.h>
 #include <linux/if_packet.h>
-#include <netinet/in.h>
+#include <arpa/inet.h>
 #include "../include/ethernet.h"
 #include <errno.h>
 #include <stdio.h>
@@ -8,7 +8,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <net/if.h>
-#include <unistd.h>
 
 
 int eth_initialize(void) {
@@ -48,8 +47,8 @@ ssize_t eth_receive(int socket_fd, unsigned char* buff, int len) {
     return dataRecv;
 }
 
-int eth_parse(unsigned char* buff, int len, struct eth_header* e) {
-    if(len >= 14) {
+int eth_parse(unsigned char* buff, int bytesRecv, struct eth_header* e) {
+    if(bytesRecv >= 14) {
         memcpy(e->destAddress, buff, 6);
         memcpy(e->sourceAddress, buff+6, 6);
         memcpy(&e->ethType, buff+12, 2);
